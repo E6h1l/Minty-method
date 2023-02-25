@@ -5,14 +5,17 @@ class Graph:
     graph_data : list
     edges : dict
     minty_path : list
+    start : int
 
     def __init__(self, path: str) -> None:
         self.graph_data = self.load_graph_data(path)
         self.edges = self.build_edges()
         self.minty_path = []
+        self.start = 0
 
     
     def load_graph_data(self, path: str) -> list:
+        """Parse graph data from file"""
         new = open(path, "r")
         graph = []
         for i in new:
@@ -33,6 +36,7 @@ class Graph:
 
     
     def build_edges(self):
+        """Create edges from a list of adjacent nodes"""
         edges = {}
         for n1, adjacents in enumerate(self.graph_data):
             for (_, n2) in adjacents[0]:
@@ -43,11 +47,13 @@ class Graph:
         return edges
 
 
-    def find_minty_path(self):
+    def find_minty_path(self, start):
+        """Find shortest path that include all nodes"""
         queue = [] # start a node, queue of one node
-        heappush(queue, (0, 0))
+        self.start = start
+        heappush(queue, (0, start))
 
-        cost = {0: 0}
+        cost = {start: 0}
         # MINTY`S method loop
         while queue:
             _, n1 = heappop(queue)
@@ -59,9 +65,9 @@ class Graph:
 
                 if n2 not in cost or new_cost < cost[n2]:  # undiscoverd
 
-                    for t in self.minty_path:
-                        if n1 not in t and n2 in t:
-                            self.minty_path.remove(tuple(sorted((t[0],t[1]))))
+                    for visited_edge in self.minty_path:
+                        if n1 not in visited_edge and n2 in visited_edge:
+                            self.minty_path.remove(tuple(sorted((visited_edge[0],visited_edge[1]))))
 
                     heappush(queue, (new_cost, n2))
                     cost[n2] = new_cost
@@ -71,9 +77,13 @@ class Graph:
     def get_minty_path(self):
         return self.minty_path
 
-    
+
     def get_graph_data(self):
         return self.graph_data
+    
+    
+    def get_start_node(self):
+        return self.start
     
     
     def get_edges(self):

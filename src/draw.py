@@ -24,18 +24,18 @@ class Plot:
     undiscovered_edge_color : tuple
 
 
-    def __init__(self, graph : Graph, screen, clock, fps, 
-                coords=None,
-                node_radius=30,
-                labels_color=(255, 255, 0),
-                undiscovered_node_color=(100, 100, 100), 
-                discovered_node_outline=(255, 255, 255),
-                current_node_fill=(200, 200, 0),
-                discovered_node_fill=(200,0,0),
-                undiscovered_node_fill=(0, 0, 0),
-                completed_node_color=(50,50,160),
-                undiscovered_edge_color=(100, 100, 100),
-                discovered_edge_color=(255, 255, 255)) -> None:
+    def __init__(self, graph : Graph, screen : pygame.display, clock : pygame.time.Clock, fps : int, 
+                coords: tuple = None,
+                node_radius: int = 30,
+                labels_color: tuple = (255, 255, 0),
+                undiscovered_node_color: tuple = (100, 100, 100), 
+                discovered_node_outline: tuple = (255, 255, 255),
+                current_node_fill: tuple = (200, 200, 0),
+                discovered_node_fill: tuple = (200,0,0),
+                undiscovered_node_fill: tuple = (0, 0, 0),
+                completed_node_color: tuple = (50,50,160),
+                undiscovered_edge_color: tuple = (100, 100, 100),
+                discovered_edge_color: tuple = (255, 255, 255)) -> None:
         
         self.clock = clock
         self.screen = screen
@@ -60,14 +60,16 @@ class Plot:
         self.add_edge_color()
 
 
-    def add_coords(self, coords):
+    def add_coords(self, coords : dict):
 
         node_data = []
 
-        if coords == None:
+        if coords is None:
             nodes_count = len(self.graph.get_graph_data())
             while nodes_count:
-                node_data.append([(random.randint(self.node_radius,self.display_size[0]-self.node_radius), random.randint(self.node_radius,self.display_size[1]-self.node_radius))])
+                x = random.randint(self.node_radius,self.display_size[0]-self.node_radius)
+                y = random.randint(self.node_radius,self.display_size[1]-self.node_radius)
+                node_data.append([(x, y)])
                 nodes_count -= 1
         else:
             tmp = sorted(coords.items())
@@ -87,7 +89,7 @@ class Plot:
             self.edges_data[edge].append(self.undiscovered_edge_color)
 
 
-    def circle_fill(self, xy, line_color, fill_color, radius, thickness, num):
+    def circle_fill(self, xy : tuple, line_color : tuple, fill_color : tuple, radius : int, thickness : int, num):
         pygame.draw.circle(self.screen, line_color, xy, radius)
         pygame.draw.circle(self.screen, fill_color, xy, radius - thickness)
         self.screen.blit(num, num.get_rect(center = xy)) 
@@ -98,17 +100,16 @@ class Plot:
 
         self.screen.fill((0, 0, 0,))
 
-        for e in self.edges_data.values(): # draw edges
-            (n1, n2), color = e
+        for edge in self.edges_data.values(): # draw edges
+            (n1, n2), color = edge
             pygame.draw.line(self.screen, color, self.nodes_data[n1][0], self.nodes_data[n2][0], 2)
 
-            w = 0
-
-            for cost in self.graph.get_graph_data()[n1][0]:
-                if n2 in cost:
-                    w = cost[0]
+            edge_cost = 0
+            for edge in self.graph.get_graph_data()[n1][0]:
+                if n2 in edge:
+                    edge_cost = edge[0]
                 
-            cost = font.render(f"{w}", True, self.labels_color)
+            cost = font.render(f"{edge_cost}", True, self.labels_color)
             self.screen.blit(cost, cost.get_rect(center = self.get_line_center(n1,n2)))
 
             for n, (xy, lcolor, fcolor) in enumerate(self.nodes_data): # draw nodes
@@ -117,7 +118,9 @@ class Plot:
 
 
     def get_line_center(self, n1 : int, n2 : int) -> float:
-        return ((self.nodes_data[n1][0][0]+self.nodes_data[n2][0][0])/2,(self.nodes_data[n1][0][1]+self.nodes_data[n2][0][1])/2)
+        x = (self.nodes_data[n1][0][0]+self.nodes_data[n2][0][0])/2
+        y = (self.nodes_data[n1][0][1]+self.nodes_data[n2][0][1])/2
+        return (x,y)
 
     
     def update(self):
@@ -128,9 +131,10 @@ class Plot:
     
     def draw_minty_path(self):
         queue = []
-        heappush(queue, (0, 0))
+        start = self.graph.get_start_node()
+        heappush(queue, (0, start))
 
-        cost = {0: 0}
+        cost = {start: 0}
 
         # MINTY`S method loop
         while queue:
@@ -146,9 +150,9 @@ class Plot:
 
                 if n2 not in cost or new_cost < cost[n2]:  # undiscoverd
 
-                    for t, _ in self.edges_data.items():
-                        if n1 not in t and n2 in t:
-                           self.edges_data[tuple(sorted((t[0],t[1])))][1] = self.undiscovered_node_color
+                    for visited_edge, _ in self.edges_data.items():
+                        if n1 not in visited_edge and n2 in visited_edge:
+                           self.edges_data[tuple(sorted((visited_edge[0],visited_edge[1])))][1] = self.undiscovered_node_color
 
                     heappush(queue, (new_cost, n2))
                     cost[n2] = new_cost
@@ -161,6 +165,3 @@ class Plot:
             # mark current as compete
             current[2] = self.completed_node_color
             self.update()
-
-
-    
