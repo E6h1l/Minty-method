@@ -14,26 +14,26 @@ You can see how to install Pygame in [official Pygame website](https://www.pygam
 
 ## Usage
 
-To run the algorithm, simply execute the `main.py` file with the following command:
+The graph data should be stored in a `example.txt` file. For example:
+```python
+# Node 0
+2 1, 3 2 # cost, adjacent nodes
+# Node 1
+2 0, 2 2
+# Node 3
+3 0, 2, 1
+```
+To run the algorithm 
+you should set environment variable `GRAPH_DATA_PATH` :
+```
+$ export GRAPH_DATA_PATH='Path_to_graph_data'
+```
+After that execute the `main.py` file with the following command:
 ```
 $ python main.py
 ```
 
-The graph data should be stored in a `graph_data.py` file. For example:
-```python
-graph = [ 
-# Node 0
-[ (70, 210), # node`s (x,y) position on the screen
-  [(2,1)] # (cost,adjacent nodes)
-],
-# Node 1
-[ (70, 350), # Node 1
-  [(2,0)]
-]
-]
-```
-
-This would represent a graph with two nodes (1 and 2) and one edge between them, with weight 2.
+This would represent a graph with three nodes (0, 1 and 2) and edges between them, with weights.
 
 ## License
 
