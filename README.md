@@ -21,7 +21,7 @@ The graph data should be stored in a `example.txt` file. For example:
 # Node 1
 2 0, 2 2
 # Node 3
-3 0, 2, 1
+3 0, 2 1
 ```
 To run the algorithm 
 you should set environment variable `GRAPH_DATA_PATH` :
